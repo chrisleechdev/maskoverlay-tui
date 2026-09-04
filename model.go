@@ -121,8 +121,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.maskPicker.Height = h
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "esc":
+		case "ctrl+c":
 			return m, tea.Quit
+		case "esc":
+			return m.goBack()
 		}
 	case maskDoneMsg:
 		m.step = stepDone
@@ -154,6 +156,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 	return m, nil
+}
+
+func (m model) goBack() (tea.Model, tea.Cmd) {
+	switch m.step {
+	case stepMask: // wrong base file → back to base picker
+		m.step = stepBase
+		return m, m.basePicker.Init()
+	case stepOptions: // wrong mask → back to mask picker
+		m.step = stepMask
+		m.output.Blur()
+		return m, m.maskPicker.Init()
+	case stepDone: // tweak options & re-render without restarting
+		m.step = stepOptions
+		m.err = nil
+		return m, nil
+	default: // stepBase (nothing before it) and stepRunning (in-flight): quit
+		return m, tea.Quit
+	}
 }
 
 func (m model) updateBase(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -302,10 +322,10 @@ func (m model) View() string {
 			"↑/↓ move · enter select · backspace up a dir · q quit")
 	case stepMask:
 		return m.frame("Step 2/4 · Choose mask (PNG)", m.maskPicker.View(),
-			"↑/↓ move · enter select · backspace up a dir · q quit")
+			"↑/↓ move · enter select · backspace up a dir · esc back · q quit")
 	case stepOptions:
 		return m.frame("Step 3/4 · Options", m.optionsBody(),
-			"tab next field · ←/→ adjust · enter render · esc quit")
+			"tab next field · ←/→ adjust · enter render · esc back")
 	case stepRunning:
 		return m.frame("Step 4/4 · Rendering", m.spinner.View()+" running magick…", "please wait")
 	case stepDone:
@@ -315,7 +335,7 @@ func (m model) View() string {
 		} else {
 			body = m.st.success.Render("✓ wrote") + "  " + m.result
 		}
-		return m.frame("Done", body, "enter/esc quit")
+		return m.frame("Done", body, "enter quit · esc back")
 	}
 	return ""
 }
