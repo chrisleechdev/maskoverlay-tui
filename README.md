@@ -74,6 +74,7 @@ The flow has four steps:
 | `↑` / `↓`   | Move          |
 | `enter`     | Select        |
 | `backspace` | Up a directory|
+| `esc`       | Back a step (quits on step 1)|
 | `q`         | Quit          |
 
 **Options (step 3)**
@@ -84,6 +85,10 @@ The flow has four steps:
 | `shift+tab` / `↑`   | Previous field                            |
 | `←` / `→`           | Adjust opacity or format                  |
 | `enter`             | Render                                    |
-| `esc`               | Quit (`q` also quits unless editing Output)|
+| `esc`               | Back to mask picker                       |
+| `q`                 | Quit (unless editing Output)              |
 
-`ctrl+c` and `esc` quit from anywhere; `enter`/`esc`/`q` dismiss the final screen.
+`ctrl+c` quits from anywhere. `esc` steps back to the previous screen — mask → base,
+options → mask, and the final screen → options (to tweak and re-render) — except on the
+first screen and while rendering, where it quits instead. On the final screen, `enter`
+or `q` quits.
