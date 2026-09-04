@@ -1,0 +1,10 @@
+# Compiled binaries / build output
+/maskoverlay-tui
+*.exe
+*.test
+*.out
+
+# Coverage & profiling
+*.prof
+*.cover
+coverage.*
